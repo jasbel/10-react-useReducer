@@ -1,13 +1,17 @@
 import { useState } from "react"
 
 /**
- * @function useForm Mi hook perosonalizado
- * @param {*} initialState Estado Inicial en vacio
- * @param values todos los valores
+ * @function useForm 
+ * @param {Object} initialState 
+ * @return {Array} Retorna el valor y la funcion-inputChange
  */
 export const useForm = ( initialState = {} ) => {
     
     const [values, setValues] = useState(initialState);
+
+    const reset = () => {
+        setValues( initialState );
+    }
 
     const handleInputChange = ({ target }) => {
 
@@ -18,6 +22,6 @@ export const useForm = ( initialState = {} ) => {
 
     }
 
-    return [ values, handleInputChange ];
+    return [ values, handleInputChange, reset ];
 
 }

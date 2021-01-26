@@ -1,71 +1,71 @@
-import React, { useReducer } from 'react'
+import React, { useReducer, useEffect } from 'react'
 
 import './styles.css'
 import { todoReducer } from './todoReducer';
+import TodoList from './TodoList';
+import TodoAdd from './TodoAdd';
 
-const initialState = [{
-    id: new Date().getTime() ,
-    desc: 'Aprender React',
-    done: false
-}];
+const init = () => {
+    return JSON.parse(localStorage.getItem('todos')) || [];
+}
 
 const TodoApp = () => {
 
-    /** usar useReducer */
-    const [todos, dispatch] = useReducer(todoReducer, initialState);
+    /** usar useReducer [] mejor usar init para que no sobrecarge la app */
+    const [todos, dispatch] = useReducer(todoReducer, [], init);
 
-    /** Accion del Formulario
-     * @param e.preventDefault: Previene la recarga de la pagina
-     * @param dispatch enviara la nueva tarea al conjunto todos
-     * 
-    */
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        localStorage.setItem('todos', JSON.stringify(todos))
 
-        const newTodo = {
-            id: new Date().getTime() ,
-            desc: 'Nueva tarea',
-            done: false
-        }
+    }, [todos])
+
+    /** @function handleDelete eliminar la tarea con el btn-borrar */
+    const handleDelete = (todoId) => {
+        console.log(todoId);
 
         const action = {
-            type: 'add',
-            payload: newTodo
+            type: 'delete',
+            payload: todoId,
         }
 
-        dispatch( action )
+        dispatch(action)
     }
+
+    /** @function handleToggle Cambiar la tarea a tachada */
+    const handleToggle = (todoId) => {
+        dispatch({
+            type: 'toggle',
+            payload: todoId
+        });
+    }
+
+    /** @function handleAddTodo Agregar nueva tarea a la lista */
+    const handleAddTodo = (newTodo) => {
+
+        dispatch({
+            type: 'add',
+            payload: newTodo
+        });
+
+    }
+
 
     return (
         <div>
-            <h1>Todo app { todos.length }</h1>
-            <hr/>
+            <h1>Todo app {todos.length}</h1>
+            <hr />
             <div className="row">
                 <div className="col-7">
-                    <ul className="list-group list-group-flush">
-                    {
-                        todos.map((todo, i) => (
-                            <li key={todo.id} className="list-group-item" >
-                                <p className="text-center"> {i + 1}. {todo.desc}</p>
-                                <button  className="btn btn-danger">Borrar</button>
-                            </li>
-                        ))
-                    }
-                    </ul>
+                    <TodoList todos={todos} handleDelete={handleDelete} handleToggle={handleToggle} />
                 </div>
                 <div className="col-5">
-                    <h4>Agregar Todos</h4>
-                    <hr/>
-
-                    <form action="" onSubmit={ handleSubmit }>
-                        <input type="text" name="description" placeholder="Aprender ..." autoComplete="off" className="form-control mb-1"/>
-
-                        <button type="submit" className="btn btn-primary btn-block"> Agregar </button>
-                    </form>
+                    <TodoAdd
+                        handleAddTodo={ handleAddTodo }
+                    />
                 </div>
             </div>
 
-            
+
         </div>
     )
 }
